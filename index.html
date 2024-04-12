@@ -32,7 +32,7 @@
         const MOVE_SPEED = 3; // Adjust movement speed as needed
         const GRAVITY = 0.3; // Adjust gravity as needed
         const JUMP_FORCE = -7; // Adjust jump force as needed
-        const LAVA_HEIGHT = SCREEN_HEIGHT / 2; // Height of the lava, covering half of the screen
+        const LAVA_WIDTH = SCREEN_WIDTH / 2; // Width of the lava, covering half of the screen
         const LAVA_COLOR = "#FF0000"; // Color of the lava
         const PLAYER_RESPAWN_X = SCREEN_WIDTH / 2 - 25; // X-coordinate where the player respawns
         const PLAYER_RESPAWN_Y = SCREEN_HEIGHT / 2 - 25; // Y-coordinate where the player respawns
@@ -80,7 +80,7 @@
                 }
 
                 // Check if the player touches the lava
-                if (this.y + this.height >= SCREEN_HEIGHT - GROUND_HEIGHT - LAVA_HEIGHT) {
+                if (this.y + this.height >= SCREEN_HEIGHT - GROUND_HEIGHT && this.x + this.width >= SCREEN_WIDTH - LAVA_WIDTH) {
                     // Player touches the lava, respawn the player
                     this.x = PLAYER_RESPAWN_X;
                     this.y = PLAYER_RESPAWN_Y;
@@ -107,7 +107,7 @@
         // Create the lava
         function drawLava() {
             ctx.fillStyle = LAVA_COLOR;
-            ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT - LAVA_HEIGHT, SCREEN_WIDTH, LAVA_HEIGHT);
+            ctx.fillRect(SCREEN_WIDTH - LAVA_WIDTH, 0, LAVA_WIDTH, SCREEN_HEIGHT);
         }
 
         // Keyboard event listener
