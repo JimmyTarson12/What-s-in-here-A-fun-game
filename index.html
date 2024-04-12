@@ -29,8 +29,7 @@
         const SCREEN_HEIGHT = 600;
         const BLACK = "#000000";
         const GROUND_HEIGHT = 50; // Height of the ground
-        const MOVE_SPEED = 0.2; // Adjust movement speed as needed
-        const STOPPING_RATE = 0.05; // Adjust stopping rate as needed
+        const MOVE_SPEED = 3; // Adjust movement speed as needed
         const GRAVITY = 0.3; // Adjust gravity as needed
         const JUMP_FORCE = -7; // Adjust jump force as needed
 
@@ -75,15 +74,6 @@
                     this.velY = 0;
                     this.isJumping = false;
                 }
-
-                // Apply stopping rate
-                if (this.velX !== 0) {
-                    if (this.velX > 0) {
-                        this.velX = Math.max(0, this.velX - STOPPING_RATE);
-                    } else {
-                        this.velX = Math.min(0, this.velX + STOPPING_RATE);
-                    }
-                }
             }
 
             jump() {
@@ -113,9 +103,7 @@
         });
         document.addEventListener("keyup", function(event) {
             keys[event.key] = false;
-            if (!keys["a"] && !keys["A"] && !keys["d"] && !keys["D"] && !keys["ArrowLeft"] && !keys["ArrowRight"]) {
-                cube.velX = 0;
-            }
+            cube.velX = 0; // Stop movement immediately
         });
 
         // Game loop
