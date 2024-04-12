@@ -32,6 +32,10 @@
         const MOVE_SPEED = 3; // Adjust movement speed as needed
         const GRAVITY = 0.3; // Adjust gravity as needed
         const JUMP_FORCE = -7; // Adjust jump force as needed
+        const LAVA_HEIGHT = 20; // Height of the lava
+        const LAVA_COLOR = "#FF0000"; // Color of the lava
+        const PLAYER_RESPAWN_X = SCREEN_WIDTH / 2 - 25; // X-coordinate where the player respawns
+        const PLAYER_RESPAWN_Y = SCREEN_HEIGHT / 2 - 25; // Y-coordinate where the player respawns
 
         // Initialize canvas and context
         const canvas = document.getElementById("gameCanvas");
@@ -74,6 +78,13 @@
                     this.velY = 0;
                     this.isJumping = false;
                 }
+
+                // Check if the player touches the lava
+                if (this.y + this.height >= SCREEN_HEIGHT - GROUND_HEIGHT - LAVA_HEIGHT) {
+                    // Player touches the lava, respawn the player
+                    this.x = PLAYER_RESPAWN_X;
+                    this.y = PLAYER_RESPAWN_Y;
+                }
             }
 
             jump() {
@@ -85,12 +96,18 @@
         }
 
         // Create the main character
-        const cube = new Cube(SCREEN_WIDTH / 2 - 25, SCREEN_HEIGHT / 2 - 25);
+        const cube = new Cube(PLAYER_RESPAWN_X, PLAYER_RESPAWN_Y);
 
         // Create the ground
         function drawGround() {
             ctx.fillStyle = BLACK;
             ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH, GROUND_HEIGHT);
+        }
+
+        // Create the lava
+        function drawLava() {
+            ctx.fillStyle = LAVA_COLOR;
+            ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT - LAVA_HEIGHT, SCREEN_WIDTH, LAVA_HEIGHT);
         }
 
         // Keyboard event listener
@@ -116,6 +133,9 @@
 
             // Draw the ground
             drawGround();
+
+            // Draw the lava
+            drawLava();
 
             // Handle input and update character velocity
             cube.velX = 0;
