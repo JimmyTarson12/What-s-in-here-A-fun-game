@@ -16,7 +16,7 @@
             background-color: #ccc; /* Grey background */
         }
         #gameCanvas {
-            background-color: black; /* Black ground */
+            background-color: white; /* White background for the game */
         }
     </style>
 </head>
@@ -27,7 +27,7 @@
         // Constants
         const SCREEN_WIDTH = 800;
         const SCREEN_HEIGHT = 600;
-        const WHITE = "#FFFFFF";
+        const BLACK = "#000000";
         const GROUND_HEIGHT = 50; // Height of the ground
         const MOVE_SPEED = 3; // Adjust movement speed as needed
         const GRAVITY = 0.3; // Adjust gravity as needed
@@ -50,7 +50,7 @@
             }
 
             draw() {
-                ctx.fillStyle = WHITE;
+                ctx.fillStyle = BLACK;
                 ctx.fillRect(this.x, this.y, this.width, this.height);
             }
 
@@ -89,7 +89,7 @@
 
         // Create the ground
         function drawGround() {
-            ctx.fillStyle = WHITE;
+            ctx.fillStyle = BLACK;
             ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH, GROUND_HEIGHT);
         }
 
@@ -109,6 +109,10 @@
         function gameLoop() {
             // Clear the canvas
             ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+            // Draw the background
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
             // Draw the ground
             drawGround();
