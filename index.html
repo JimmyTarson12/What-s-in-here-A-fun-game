@@ -27,7 +27,10 @@
         const SCREEN_WIDTH = 800;
         const SCREEN_HEIGHT = 600;
         const WHITE = "#FFFFFF";
-        const MOVE_SPEED = 4; // Adjust movement speed as needed
+        const GROUND_HEIGHT = 50; // Height of the ground
+        const MOVE_SPEED = 3; // Adjust movement speed as needed
+        const GRAVITY = 0.3; // Adjust gravity as needed
+        const JUMP_FORCE = -7; // Adjust jump force as needed
 
         // Initialize canvas and context
         const canvas = document.getElementById("gameCanvas");
@@ -42,6 +45,7 @@
                 this.height = 50;
                 this.velX = 0;
                 this.velY = 0;
+                this.isJumping = false;
             }
 
             draw() {
@@ -50,16 +54,31 @@
             }
 
             update() {
+                // Apply gravity
+                this.velY += GRAVITY;
+
                 // Calculate the next position
                 const nextX = this.x + this.velX;
-                const nextY = this.y + this.velY;
+                let nextY = this.y + this.velY;
 
                 // Check if the next position is within bounds
                 if (nextX >= 0 && nextX + this.width <= SCREEN_WIDTH) {
                     this.x = nextX;
                 }
-                if (nextY >= 0 && nextY + this.height <= SCREEN_HEIGHT) {
+                if (nextY >= 0 && nextY + this.height <= SCREEN_HEIGHT - GROUND_HEIGHT) {
                     this.y = nextY;
+                } else {
+                    // On ground
+                    this.y = SCREEN_HEIGHT - GROUND_HEIGHT - this.height;
+                    this.velY = 0;
+                    this.isJumping = false;
+                }
+            }
+
+            jump() {
+                if (!this.isJumping) {
+                    this.velY = JUMP_FORCE;
+                    this.isJumping = true;
                 }
             }
         }
@@ -67,10 +86,19 @@
         // Create the main character
         const cube = new Cube(SCREEN_WIDTH / 2 - 25, SCREEN_HEIGHT / 2 - 25);
 
+        // Create the ground
+        function drawGround() {
+            ctx.fillStyle = WHITE;
+            ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH, GROUND_HEIGHT);
+        }
+
         // Keyboard event listener
         const keys = {};
         document.addEventListener("keydown", function(event) {
             keys[event.key] = true;
+            if (event.key === " ") {
+                cube.jump();
+            }
         });
         document.addEventListener("keyup", function(event) {
             keys[event.key] = false;
@@ -81,13 +109,13 @@
             // Clear the canvas
             ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
+            // Draw the ground
+            drawGround();
+
             // Handle input and update character velocity
             cube.velX = 0;
-            cube.velY = 0;
             if (keys["a"] || keys["A"] || keys["ArrowLeft"]) cube.velX -= MOVE_SPEED;
             if (keys["d"] || keys["D"] || keys["ArrowRight"]) cube.velX += MOVE_SPEED;
-            if (keys["w"] || keys["W"] || keys["ArrowUp"]) cube.velY -= MOVE_SPEED;
-            if (keys["s"] || keys["S"] || keys["ArrowDown"]) cube.velY += MOVE_SPEED;
 
             // Update and draw the main character
             cube.update();
