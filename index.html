@@ -36,8 +36,9 @@
         const LAVA_COLOR = "#FF0000"; // Color of the lava
         const PLAYER_RESPAWN_X = SCREEN_WIDTH / 2 - 25; // X-coordinate where the player respawns
         const PLAYER_RESPAWN_Y = SCREEN_HEIGHT / 2 - 25; // Y-coordinate where the player respawns
-        const GAP_WIDTH = 200; // Width of the gap in the ground
 
+        let currentLevel = 1;
+        let gapWidth = 200;
         let groundDisappear = false;
 
         // Initialize canvas and context
@@ -111,8 +112,8 @@
         function drawGround() {
             ctx.fillStyle = BLACK;
             if (groundDisappear) {
-                ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH - GAP_WIDTH, GROUND_HEIGHT);
-                ctx.fillRect(SCREEN_WIDTH - GAP_WIDTH, SCREEN_HEIGHT - GROUND_HEIGHT, GAP_WIDTH, GROUND_HEIGHT);
+                ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH - gapWidth, GROUND_HEIGHT);
+                ctx.fillRect(SCREEN_WIDTH - gapWidth, SCREEN_HEIGHT - GROUND_HEIGHT, gapWidth, GROUND_HEIGHT);
             } else {
                 ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH, GROUND_HEIGHT);
             }
@@ -159,6 +160,26 @@
             // Update and draw the main character
             cube.update();
             cube.draw();
+
+            // Check if the player has reached the end of the level
+            if (cube.x >= SCREEN_WIDTH) {
+                // Move to the next level
+                currentLevel++;
+                // Reset player position and level configuration
+                cube.x = PLAYER_RESPAWN_X;
+                cube.y = PLAYER_RESPAWN_Y;
+                gapWidth = 200; // Reset the gap width
+                groundDisappear = false; // Reset groundDisappear flag
+            }
+
+            // Update level configuration based on current level
+            if (currentLevel === 1) {
+                // Level 1 configuration
+                // Define gap width and set groundDisappear flag to true
+                gapWidth = 200;
+                groundDisappear = true;
+            }
+            // Add more level configurations as needed
 
             // Request next frame
             requestAnimationFrame(gameLoop);
