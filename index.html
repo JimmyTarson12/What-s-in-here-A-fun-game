@@ -36,6 +36,9 @@
         const LAVA_COLOR = "#FF0000"; // Color of the lava
         const PLAYER_RESPAWN_X = SCREEN_WIDTH / 2 - 25; // X-coordinate where the player respawns
         const PLAYER_RESPAWN_Y = SCREEN_HEIGHT / 2 - 25; // Y-coordinate where the player respawns
+        const GAP_WIDTH = 200; // Width of the gap in the ground
+
+        let groundDisappear = false;
 
         // Initialize canvas and context
         const canvas = document.getElementById("gameCanvas");
@@ -85,6 +88,12 @@
                     this.x = PLAYER_RESPAWN_X;
                     this.y = PLAYER_RESPAWN_Y;
                 }
+
+                // Check if the player falls into the lava intentionally
+                if (this.y + this.height >= SCREEN_HEIGHT - GROUND_HEIGHT && this.x + this.width < SCREEN_WIDTH - LAVA_WIDTH && groundDisappear) {
+                    // Create a piece of ground to save the player
+                    groundDisappear = false;
+                }
             }
 
             jump() {
@@ -101,7 +110,12 @@
         // Create the ground
         function drawGround() {
             ctx.fillStyle = BLACK;
-            ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH, GROUND_HEIGHT);
+            if (groundDisappear) {
+                ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH - GAP_WIDTH, GROUND_HEIGHT);
+                ctx.fillRect(SCREEN_WIDTH - GAP_WIDTH, SCREEN_HEIGHT - GROUND_HEIGHT, GAP_WIDTH, GROUND_HEIGHT);
+            } else {
+                ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH, GROUND_HEIGHT);
+            }
         }
 
         // Create the lava
