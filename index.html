@@ -103,7 +103,6 @@
         });
         document.addEventListener("keyup", function(event) {
             keys[event.key] = false;
-            cube.velX = 0; // Stop movement immediately
         });
 
         // Game loop
@@ -119,6 +118,7 @@
             drawGround();
 
             // Handle input and update character velocity
+            cube.velX = 0;
             if (keys["a"] || keys["A"] || keys["ArrowLeft"]) cube.velX -= MOVE_SPEED;
             if (keys["d"] || keys["D"] || keys["ArrowRight"]) cube.velX += MOVE_SPEED;
 
