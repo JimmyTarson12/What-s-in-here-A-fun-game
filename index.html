@@ -96,7 +96,7 @@
         const keys = {};
         document.addEventListener("keydown", function(event) {
             keys[event.key] = true;
-            if (event.key === " ") {
+            if (event.key === "w" || event.key === "W" || event.key === "ArrowUp") {
                 cube.jump();
             }
         });
