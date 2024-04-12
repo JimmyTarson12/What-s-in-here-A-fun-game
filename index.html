@@ -27,7 +27,7 @@
         const SCREEN_WIDTH = 800;
         const SCREEN_HEIGHT = 600;
         const WHITE = "#FFFFFF";
-        const MOVE_SPEED = 3; // Adjust movement speed as needed
+        const MOVE_SPEED = 4; // Adjust movement speed as needed
 
         // Initialize canvas and context
         const canvas = document.getElementById("gameCanvas");
@@ -50,8 +50,17 @@
             }
 
             update() {
-                this.x += this.velX;
-                this.y += this.velY;
+                // Calculate the next position
+                const nextX = this.x + this.velX;
+                const nextY = this.y + this.velY;
+
+                // Check if the next position is within bounds
+                if (nextX >= 0 && nextX + this.width <= SCREEN_WIDTH) {
+                    this.x = nextX;
+                }
+                if (nextY >= 0 && nextY + this.height <= SCREEN_HEIGHT) {
+                    this.y = nextY;
+                }
             }
         }
 
