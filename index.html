@@ -72,10 +72,10 @@
             // Handle input and update character velocity
             cube.velX = 0;
             cube.velY = 0;
-            if (keys["a"] || keys["A"]) cube.velX -= MOVE_SPEED;
-            if (keys["d"] || keys["D"]) cube.velX += MOVE_SPEED;
-            if (keys["w"] || keys["W"]) cube.velY -= MOVE_SPEED;
-            if (keys["s"] || keys["S"]) cube.velY += MOVE_SPEED;
+            if (keys["a"] || keys["A"] || keys["ArrowLeft"]) cube.velX -= MOVE_SPEED;
+            if (keys["d"] || keys["D"] || keys["ArrowRight"]) cube.velX += MOVE_SPEED;
+            if (keys["w"] || keys["W"] || keys["ArrowUp"]) cube.velY -= MOVE_SPEED;
+            if (keys["s"] || keys["S"] || keys["ArrowDown"]) cube.velY += MOVE_SPEED;
 
             // Update and draw the main character
             cube.update();
