@@ -42,10 +42,33 @@
                 ctx.fillStyle = WHITE;
                 ctx.fillRect(this.x, this.y, this.width, this.height);
             }
+
+            move(dx, dy) {
+                this.x += dx;
+                this.y += dy;
+            }
         }
 
         // Create the main character
         const cube = new Cube(SCREEN_WIDTH / 2 - 25, SCREEN_HEIGHT / 2 - 25);
+
+        // Keyboard event listener
+        document.addEventListener("keydown", function(event) {
+            switch(event.key) {
+                case "ArrowLeft":
+                    cube.move(-5, 0);
+                    break;
+                case "ArrowRight":
+                    cube.move(5, 0);
+                    break;
+                case "ArrowUp":
+                    cube.move(0, -5);
+                    break;
+                case "ArrowDown":
+                    cube.move(0, 5);
+                    break;
+            }
+        });
 
         // Game loop
         function gameLoop() {
