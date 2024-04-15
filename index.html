@@ -63,7 +63,21 @@
                 jumping = false;
             }, 500); // Adjust jump duration
         }
+        if (event.code === 'ArrowLeft') {
+            movePlayer(-10); // Move left
+        }
+        if (event.code === 'ArrowRight') {
+            movePlayer(10); // Move right
+        }
     });
+
+    function movePlayer(distance) {
+        const playerRect = player.getBoundingClientRect();
+        const platformRect = platform.getBoundingClientRect();
+        if ((distance < 0 && playerRect.left > platformRect.left) || (distance > 0 && playerRect.right < platformRect.right)) {
+            player.style.left = `${playerRect.left + distance}px`;
+        }
+    }
 
     function checkCollision() {
         const playerRect = player.getBoundingClientRect();
