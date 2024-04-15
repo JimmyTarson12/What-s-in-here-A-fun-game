@@ -3,190 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Game Title</title>
+    <title>Cube Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <style>
         body {
             margin: 0;
-            padding: 0;
-            overflow: hidden; /* Hide scrollbars */
-            display: flex;
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
-            height: 100vh; /* Take up the full viewport height */
-            background-color: #ccc; /* Grey background */
         }
-        #gameCanvas {
-            background-color: white; /* White background for the game */
+        canvas {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-
     <script>
-        // Constants
-        const SCREEN_WIDTH = 800;
-        const SCREEN_HEIGHT = 600;
-        const BLACK = "#000000";
-        const GROUND_HEIGHT = 50; // Height of the ground
-        const MOVE_SPEED = 3; // Adjust movement speed as needed
-        const GRAVITY = 0.3; // Adjust gravity as needed
-        const JUMP_FORCE = -7; // Adjust jump force as needed
-        const LAVA_WIDTH = 50; // Width of the lava, covering only a small portion on the right side
-        const LAVA_COLOR = "#FF0000"; // Color of the lava
-        const PLAYER_RESPAWN_X = SCREEN_WIDTH / 2 - 25; // X-coordinate where the player respawns
-        const PLAYER_RESPAWN_Y = SCREEN_HEIGHT / 2 - 25; // Y-coordinate where the player respawns
-
-        let currentLevel = 1;
-        let gapWidth = 200;
-        let groundDisappear = false;
-
-        // Initialize canvas and context
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-
-        // Define the main character
-        class Cube {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.width = 50;
-                this.height = 50;
-                this.velX = 0;
-                this.velY = 0;
-                this.isJumping = false;
+        // Initialize Phaser
+        var config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 300 },
+                    debug: false
+                }
+            },
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
             }
+        };
 
-            draw() {
-                ctx.fillStyle = BLACK;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-            }
+        var game = new Phaser.Game(config);
+        var player;
 
-            update() {
-                // Apply gravity
-                this.velY += GRAVITY;
+        function preload() {
+            this.load.image('ground', 'ground.png');
+            this.load.image('lava', 'lava.png');
+            this.load.image('cube', 'cube.png');
+        }
 
-                // Calculate the next position
-                const nextX = this.x + this.velX;
-                let nextY = this.y + this.velY;
+        function create() {
+            this.add.image(400, 575, 'ground').setScale(10, 1);
+            this.add.image(400, 575, 'lava').setScale(10, 0.02);
+            player = this.physics.add.sprite(100, 450, 'cube');
+            player.setCollideWorldBounds(true);
+            this.physics.add.collider(player, this.physics.world.bounds.bottom, handleLava, null, this);
+            this.input.keyboard.on('keydown-SPACE', jump, this);
+        }
 
-                // Check if the next position is within bounds
-                if (nextX >= 0 && nextX + this.width <= SCREEN_WIDTH) {
-                    this.x = nextX;
-                }
-                if (nextY >= 0 && nextY + this.height <= SCREEN_HEIGHT - GROUND_HEIGHT) {
-                    this.y = nextY;
-                } else {
-                    // On ground
-                    this.y = SCREEN_HEIGHT - GROUND_HEIGHT - this.height;
-                    this.velY = 0;
-                    this.isJumping = false;
-                }
-
-                // Check if the player touches the lava
-                if (this.y + this.height >= SCREEN_HEIGHT - GROUND_HEIGHT && this.x + this.width >= SCREEN_WIDTH - LAVA_WIDTH) {
-                    // Player touches the lava, respawn the player
-                    this.x = PLAYER_RESPAWN_X;
-                    this.y = PLAYER_RESPAWN_Y;
-                }
-
-                // Check if the player falls into the lava intentionally
-                if (this.y + this.height >= SCREEN_HEIGHT - GROUND_HEIGHT && this.x + this.width < SCREEN_WIDTH - LAVA_WIDTH && groundDisappear) {
-                    // Create a piece of ground to save the player
-                    groundDisappear = false;
-                }
-            }
-
-            jump() {
-                if (!this.isJumping) {
-                    this.velY = JUMP_FORCE;
-                    this.isJumping = true;
-                }
+        function update() {
+            if (player.y >= 575) {
+                player.x = 100;
             }
         }
 
-        // Create the main character
-        const cube = new Cube(PLAYER_RESPAWN_X, PLAYER_RESPAWN_Y);
-
-        // Create the ground
-        function drawGround() {
-            ctx.fillStyle = BLACK;
-            if (groundDisappear) {
-                ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH - gapWidth, GROUND_HEIGHT);
-                ctx.fillRect(SCREEN_WIDTH - gapWidth, SCREEN_HEIGHT - GROUND_HEIGHT, gapWidth, GROUND_HEIGHT);
-            } else {
-                ctx.fillRect(0, SCREEN_HEIGHT - GROUND_HEIGHT, SCREEN_WIDTH, GROUND_HEIGHT);
+        function jump() {
+            if (player.body.touching.down) {
+                player.setVelocityY(-200);
             }
         }
 
-        // Create the lava
-        function drawLava() {
-            ctx.fillStyle = LAVA_COLOR;
-            ctx.fillRect(SCREEN_WIDTH - LAVA_WIDTH, 0, LAVA_WIDTH, SCREEN_HEIGHT);
+        function handleLava() {
+            player.x = 100;
         }
-
-        // Keyboard event listener
-        const keys = {};
-        document.addEventListener("keydown", function(event) {
-            keys[event.key] = true;
-            if (event.key === "w" || event.key === "W" || event.key === "ArrowUp") {
-                cube.jump();
-            }
-        });
-        document.addEventListener("keyup", function(event) {
-            keys[event.key] = false;
-        });
-
-        // Game loop
-        function gameLoop() {
-            // Clear the canvas
-            ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-            // Draw the background
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-            // Draw the ground
-            drawGround();
-
-            // Draw the lava
-            drawLava();
-
-            // Handle input and update character velocity
-            cube.velX = 0;
-            if (keys["a"] || keys["A"] || keys["ArrowLeft"]) cube.velX -= MOVE_SPEED;
-            if (keys["d"] || keys["D"] || keys["ArrowRight"]) cube.velX += MOVE_SPEED;
-
-            // Update and draw the main character
-            cube.update();
-            cube.draw();
-
-            // Check if the player has reached the end of the level
-            if (cube.x >= SCREEN_WIDTH) {
-                // Move to the next level
-                currentLevel++;
-                // Reset player position and level configuration
-                cube.x = PLAYER_RESPAWN_X;
-                cube.y = PLAYER_RESPAWN_Y;
-                gapWidth = 200; // Reset the gap width
-                groundDisappear = false; // Reset groundDisappear flag
-            }
-
-            // Update level configuration based on current level
-            if (currentLevel === 1) {
-                // Level 1 configuration
-                // Define gap width and set groundDisappear flag to true
-                gapWidth = 200;
-                groundDisappear = true;
-            }
-            // Add more level configurations as needed
-
-            // Request next frame
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Start the game loop
-        gameLoop();
     </script>
 </body>
 </html>
