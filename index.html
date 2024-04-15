@@ -53,45 +53,61 @@
     const lava = document.getElementById('lava');
     const platform = document.getElementById('platform');
     let jumping = false;
+    let velocityY = 0;
 
     document.addEventListener('keydown', function(event) {
         if (event.code === 'Space' && !jumping) {
             jumping = true;
-            player.style.bottom = '150px'; // Change this value for jump height
-            setTimeout(function() {
-                player.style.bottom = '0';
-                jumping = false;
-            }, 500); // Adjust jump duration
-        }
-        if (event.code === 'ArrowLeft') {
-            movePlayer(-10); // Move left
-        }
-        if (event.code === 'ArrowRight') {
-            movePlayer(10); // Move right
+            velocityY = 8; // Initial jump velocity
         }
     });
 
-    function movePlayer(distance) {
+    function movePlayer() {
         const playerRect = player.getBoundingClientRect();
         const platformRect = platform.getBoundingClientRect();
-        if ((distance < 0 && playerRect.left > platformRect.left) || (distance > 0 && playerRect.right < platformRect.right)) {
-            player.style.left = `${playerRect.left + distance}px`;
+
+        // Apply gravity
+        if (playerRect.bottom < platformRect.top) {
+            velocityY -= 0.5; // Gravity force
+        } else if (playerRect.bottom >= platformRect.top && velocityY < 0) {
+            jumping = false; // Land on the platform
+            velocityY = 0;
+            player.style.bottom = `${platformRect.top}px`;
+        }
+
+        // Move player vertically
+        player.style.bottom = `${playerRect.bottom + velocityY}px`;
+
+        // Keep player within the screen
+        if (playerRect.top < 0) {
+            player.style.bottom = `${playerRect.height}px`;
+            velocityY = 0;
+        }
+
+        // Check if player touches lava
+        const lavaRect = lava.getBoundingClientRect();
+        if (playerRect.bottom >= lavaRect.top && playerRect.right >= lavaRect.left && playerRect.left <= lavaRect.right) {
+            player.style.left = '90vw'; // Respawn at the right side of the screen if touches lava
         }
     }
 
     function checkCollision() {
         const playerRect = player.getBoundingClientRect();
-        const lavaRect = lava.getBoundingClientRect();
         const platformRect = platform.getBoundingClientRect();
-        if (playerRect.bottom >= lavaRect.top && playerRect.right >= lavaRect.left && playerRect.left <= lavaRect.right) {
-            player.style.left = '90vw'; // Respawn at the right side of the screen if touches lava
-        }
+
+        // Check if player is standing on the platform
         if (playerRect.bottom >= platformRect.top && playerRect.right >= platformRect.left && playerRect.left <= platformRect.right) {
             jumping = false; // Player can't jump while on the platform
         }
     }
 
-    setInterval(checkCollision, 100); // Check collision every 100ms
+    function gameLoop() {
+        movePlayer();
+        checkCollision();
+        requestAnimationFrame(gameLoop); // Loop the game
+    }
+
+    gameLoop(); // Start the game loop
 </script>
 </body>
 </html>
