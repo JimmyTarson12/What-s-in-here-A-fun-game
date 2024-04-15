@@ -20,7 +20,7 @@
 
     const player = {
       x: 50,
-      y: canvas.height - 50,
+      y: 0,
       width: 50,
       height: 50,
       speed: 5,
@@ -28,6 +28,14 @@
       jumpStrength: 15,
       grounded: false,
       color: 'blue'
+    };
+
+    const platform = {
+      x: canvas.width / 4,
+      y: canvas.height - 100,
+      width: canvas.width / 2,
+      height: 20,
+      color: 'green'
     };
 
     const lava = {
@@ -43,6 +51,11 @@
       ctx.fillRect(player.x, player.y, player.width, player.height);
     }
 
+    function drawPlatform() {
+      ctx.fillStyle = platform.color;
+      ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+    }
+
     function drawLava() {
       ctx.fillStyle = lava.color;
       ctx.fillRect(lava.x, lava.y, lava.width, lava.height);
@@ -55,6 +68,7 @@
     function update() {
       clearCanvas();
       drawPlayer();
+      drawPlatform();
       drawLava();
       movePlayer();
       checkCollision();
@@ -75,6 +89,16 @@
     }
 
     function checkCollision() {
+      // Collision with platform
+      if (
+        player.y + player.height >= platform.y && // bottom of player is at or below top of platform
+        player.y <= platform.y + platform.height && // top of player is at or above bottom of platform
+        player.x + player.width >= platform.x && // right of player is at or beyond left of platform
+        player.x <= platform.x + platform.width // left of player is at or beyond right of platform
+      ) {
+        player.y = platform.y - player.height;
+        player.grounded = true;
+      }
       // Collision with lava
       if (player.y + player.height > lava.y && player.x < lava.x + lava.width && player.x + player.width > lava.x) {
         player.x = canvas.width - player.width - 10; // Respawn at right side
