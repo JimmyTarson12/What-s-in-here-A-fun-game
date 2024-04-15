@@ -1,144 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cube Game</title>
-  <style>
-    canvas {
-      background-color: gray;
-      display: block;
-      margin: 0 auto;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opposite Day</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const canvas = document.getElementById("gameCanvas");
+            const ctx = canvas.getContext("2d");
 
-    const player = {
-      x: 100,
-      y: 0,
-      width: 50,
-      height: 50,
-      speed: 5,
-      jumping: false,
-      jumpStrength: 15,
-      grounded: false,
-      color: 'blue'
-    };
+            // Define player properties
+            let playerWidth = 50;
+            let playerHeight = 50;
+            let playerX = canvas.width / 2 - playerWidth / 2;
+            let playerY = canvas.height - playerHeight;
+            let playerSpeed = 5;
+            let playerJumpPower = 15;
+            let playerJump = false;
+            let gravity = 0.75;
+            let playerDY = 0;
 
-    const platform = {
-      x: canvas.width / 4,
-      y: canvas.height - 100,
-      width: canvas.width / 2,
-      height: 20,
-      color: 'green'
-    };
+            // Define platform properties
+            let platformWidth = 100;
+            let platformHeight = 20;
+            let platformSpeed = 3;
+            let platforms = [];
+            let platformGap = 200;
+            let nextPlatformX = getRandomInt(0, canvas.width - platformWidth);
 
-    const lava = {
-      x: 0,
-      y: canvas.height - 30,
-      width: canvas.width,
-      height: 30,
-      color: 'red'
-    };
+            // Font settings
+            ctx.font = "24px Arial";
 
-    function drawPlayer() {
-      ctx.fillStyle = player.color;
-      ctx.fillRect(player.x, player.y, player.width, player.height);
-    }
+            // Function to draw text on the screen
+            function drawText(text, color, x, y) {
+                ctx.fillStyle = color;
+                ctx.fillText(text, x, y);
+            }
 
-    function drawPlatform() {
-      ctx.fillStyle = platform.color;
-      ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
-    }
+            // Generate random integer between min and max (inclusive)
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
 
-    function drawLava() {
-      ctx.fillStyle = lava.color;
-      ctx.fillRect(lava.x, lava.y, lava.width, lava.height);
-    }
+            // Main game loop
+            function gameLoop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    function clearCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+                // Draw player
+                ctx.fillStyle = "red";
+                ctx.fillRect(playerX, playerY, playerWidth, playerHeight);
 
-    function update() {
-      clearCanvas();
-      drawPlayer();
-      drawPlatform();
-      drawLava();
-      movePlayer();
-      checkCollision();
-    }
+                // Draw platforms and check collision with player
+                platforms.forEach(platform => {
+                    ctx.fillStyle = "black";
+                    ctx.fillRect(platform.x, platform.y, platformWidth, platformHeight);
 
-    function movePlayer() {
-      if (player.jumping) {
-        player.y -= player.jumpStrength;
-        player.jumpStrength -= 1;
-        if (player.jumpStrength === 0) {
-          player.jumping = false;
-          player.grounded = false;
-        }
-      }
-      if (!player.grounded) {
-        player.y += 5;
-      }
-    }
+                    if (platform.x < playerX + playerWidth &&
+                        platform.x + platformWidth > playerX &&
+                        platform.y < playerY + playerHeight &&
+                        platform.y + platformHeight > playerY + playerHeight &&
+                        playerDY > 0) {
+                            playerDY = 0;
+                            playerJump = false;
+                            playerY = platform.y - playerHeight;
+                    }
+                });
 
-    function checkCollision() {
-      // Collision with platform
-      if (
-        player.y + player.height >= platform.y && // bottom of player is at or below top of platform
-        player.y <= platform.y + platform.height && // top of player is at or above bottom of platform
-        player.x + player.width >= platform.x && // right of player is at or beyond left of platform
-        player.x <= platform.x + platform.width // left of player is at or beyond right of platform
-      ) {
-        player.y = platform.y - player.height;
-        player.grounded = true;
-      }
-      // Collision with lava
-      if (player.y + player.height > lava.y && player.x < lava.x + lava.width && player.x + player.width > lava.x) {
-        player.x = canvas.width - player.width - 10; // Respawn at right side
-      }
-      // Ground collision
-      if (player.y + player.height >= canvas.height - 10) {
-        player.y = canvas.height - player.height - 10;
-        player.grounded = true;
-      }
-    }
+                // Generate new platforms
+                if (platforms.length === 0 || platforms[platforms.length - 1].x < canvas.width) {
+                    nextPlatformX = getRandomInt(canvas.width, canvas.width + platformGap);
+                    let platformHeight = getRandomInt(50, 100);
+                    platforms.push({ x: nextPlatformX, y: canvas.height - platformHeight });
+                }
 
-    function jump() {
-      if (player.grounded) {
-        player.jumping = true;
-        player.jumpStrength = 15;
-        player.grounded = false;
-      }
-    }
+                // Move platforms to the left
+                platforms.forEach(platform => {
+                    platform.x -= platformSpeed;
+                });
 
-    function moveLeft() {
-      player.x -= player.speed;
-    }
+                // Remove off-screen platforms
+                platforms = platforms.filter(platform => platform.x + platformWidth > 0);
 
-    function moveRight() {
-      player.x += player.speed;
-    }
+                // Apply gravity
+                playerDY += gravity;
+                playerY += playerDY;
 
-    document.addEventListener('keydown', function(event) {
-      if (event.code === 'Space') {
-        jump();
-      }
-      if (event.code === 'ArrowLeft') {
-        moveLeft();
-      }
-      if (event.code === 'ArrowRight') {
-        moveRight();
-      }
-    });
+                // Check for player falling off the screen
+                if (playerY > canvas.height) {
+                    playerY = canvas.height - playerHeight;
+                }
 
-    setInterval(update, 1000 / 60); // Update 60 times per second
-  </script>
+                // Draw level text
+                drawText("Jump", "black", 20, 20);
+
+                // Check for reverse level design
+                if (playerJump) {
+                    drawText("Don't Jump!", "black", 20, 20);
+                }
+
+                requestAnimationFrame(gameLoop);
+            }
+
+            // Event listener for key presses
+            document.addEventListener("keydown", function(event) {
+                if (event.key === " ") {
+                    playerJump = true;
+                }
+            });
+
+            // Start the game loop
+            gameLoop();
+        });
+    </script>
 </body>
 </html>
