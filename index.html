@@ -49,6 +49,7 @@
             this.add.image(400, 575, 'lava').setScale(10, 0.02);
             player = this.physics.add.sprite(100, 450, 'cube');
             player.setCollideWorldBounds(true);
+            player.body.setBoundsRectangle(new Phaser.Geom.Rectangle(0, 0, 800, 575));
             this.physics.add.collider(player, this.physics.world.bounds.bottom, handleLava, null, this);
             this.input.keyboard.on('keydown-SPACE', jump, this);
         }
