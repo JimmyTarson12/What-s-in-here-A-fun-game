@@ -1,124 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cube Game</title>
-<style>
-    body {
-        margin: 0;
-        overflow: hidden;
-        background-color: #DDDDDD;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cube Game</title>
+  <style>
     canvas {
-        display: block;
-        background-color: #000000;
+      background-color: gray;
+      display: block;
+      margin: 0 auto;
     }
-</style>
+  </style>
 </head>
 <body>
-<canvas id="gameCanvas" width="800" height="600"></canvas>
-<script>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    const groundHeight = canvas.height * 0.02;
-    const lavaHeight = canvas.height * 0.02;
-    const groundColor = '#000000';
-    const lavaColor = '#FF0000';
-    const playerColor = '#FFFFFF';
-    const doorColor = '#00FF00';
-
-    let player = {
-        x: 50,
-        y: canvas.height - groundHeight - 20,
-        width: 20,
-        height: 20,
-        speed: 5,
-        jumping: false,
-        jumpPower: 10,
-        jumpHeight: 100,
-        gravity: 0.5
+    const player = {
+      x: 50,
+      y: canvas.height - 50,
+      width: 50,
+      height: 50,
+      speed: 5,
+      jumping: false,
+      jumpStrength: 15,
+      grounded: false,
+      color: 'blue'
     };
 
-    let door = {
-        x: canvas.width - 50,
-        y: canvas.height - groundHeight - 20,
-        width: 20,
-        height: 20
+    const lava = {
+      x: 0,
+      y: canvas.height - 30,
+      width: canvas.width,
+      height: 30,
+      color: 'red'
     };
 
-    let isJumping = false;
+    function drawPlayer() {
+      ctx.fillStyle = player.color;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
 
-    function draw() {
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function drawLava() {
+      ctx.fillStyle = lava.color;
+      ctx.fillRect(lava.x, lava.y, lava.width, lava.height);
+    }
 
-        // Draw ground
-        ctx.fillStyle = groundColor;
-        ctx.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
-
-        // Draw lava
-        ctx.fillStyle = lavaColor;
-        ctx.fillRect(0, canvas.height - groundHeight - lavaHeight, canvas.width, lavaHeight);
-
-        // Draw player
-        ctx.fillStyle = playerColor;
-        ctx.fillRect(player.x, player.y, player.width, player.height);
-
-        // Draw door
-        ctx.fillStyle = doorColor;
-        ctx.fillRect(door.x, door.y, door.width, door.height);
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
     function update() {
-        if (isJumping) {
-            player.y -= player.jumpPower;
-            player.jumpPower -= player.gravity;
-            if (player.jumpPower <= 0) {
-                isJumping = false;
-            }
-        } else if (player.y < canvas.height - groundHeight - player.height) {
-            player.y += player.gravity;
-        }
-
-        if (player.x < 0) {
-            player.x = canvas.width;
-        } else if (player.x > canvas.width) {
-            player.x = 0;
-        }
-
-        // Check collision with lava
-        if (player.y + player.height > canvas.height - groundHeight - lavaHeight) {
-            player.x = canvas.width - player.width - 10;
-            player.y = canvas.height - groundHeight - player.height;
-        }
-
-        // Check collision with door
-        if (player.x + player.width >= door.x && player.y + player.height >= door.y) {
-            alert('You win!');
-            location.reload();
-        }
+      clearCanvas();
+      drawPlayer();
+      drawLava();
+      movePlayer();
+      checkCollision();
     }
 
-    document.addEventListener('keydown', (event) => {
-        if (event.code === 'ArrowLeft') {
-            player.x -= player.speed;
-        } else if (event.code === 'ArrowRight') {
-            player.x += player.speed;
-        } else if (event.code === 'Space' && !isJumping) {
-            isJumping = true;
-            player.jumpPower = player.jumpHeight;
+    function movePlayer() {
+      if (player.jumping) {
+        player.y -= player.jumpStrength;
+        player.jumpStrength -= 1;
+        if (player.jumpStrength === 0) {
+          player.jumping = false;
+          player.grounded = false;
         }
+      }
+      if (!player.grounded) {
+        player.y += 5;
+      }
+    }
+
+    function checkCollision() {
+      // Collision with lava
+      if (player.y + player.height > lava.y && player.x < lava.x + lava.width && player.x + player.width > lava.x) {
+        player.x = canvas.width - player.width - 10; // Respawn at right side
+      }
+      // Ground collision
+      if (player.y + player.height >= canvas.height - 10) {
+        player.y = canvas.height - player.height - 10;
+        player.grounded = true;
+      }
+    }
+
+    function jump() {
+      if (player.grounded) {
+        player.jumping = true;
+        player.jumpStrength = 15;
+        player.grounded = false;
+      }
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.code === 'Space') {
+        jump();
+      }
     });
 
-    function gameLoop() {
-        draw();
-        update();
-        requestAnimationFrame(gameLoop);
-    }
-
-    gameLoop();
-</script>
+    setInterval(update, 1000 / 60); // Update 60 times per second
+  </script>
 </body>
 </html>
