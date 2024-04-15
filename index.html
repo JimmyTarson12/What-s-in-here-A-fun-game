@@ -31,17 +31,27 @@
         background-color: red;
         bottom: 0;
     }
+    #platform {
+        position: absolute;
+        width: 200px;
+        height: 20px;
+        background-color: #444;
+        bottom: 25%;
+        left: 40%;
+    }
 </style>
 </head>
 <body>
 <div id="game-container">
     <div id="player"></div>
     <div id="lava"></div>
+    <div id="platform"></div>
 </div>
 
 <script>
     const player = document.getElementById('player');
     const lava = document.getElementById('lava');
+    const platform = document.getElementById('platform');
     let jumping = false;
 
     document.addEventListener('keydown', function(event) {
@@ -58,8 +68,12 @@
     function checkCollision() {
         const playerRect = player.getBoundingClientRect();
         const lavaRect = lava.getBoundingClientRect();
+        const platformRect = platform.getBoundingClientRect();
         if (playerRect.bottom >= lavaRect.top && playerRect.right >= lavaRect.left && playerRect.left <= lavaRect.right) {
-            player.style.left = '90vw'; // Respawn at the right side of the screen
+            player.style.left = '90vw'; // Respawn at the right side of the screen if touches lava
+        }
+        if (playerRect.bottom >= platformRect.top && playerRect.right >= platformRect.left && playerRect.left <= platformRect.right) {
+            jumping = false; // Player can't jump while on the platform
         }
     }
 
